@@ -1,10 +1,20 @@
 package api.webfashionstore.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.io.Serializable;
 
 @Entity
 @Table(name = "promotion_detail")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicUpdate
+@DynamicInsert
 public class PromotionDetail implements Serializable {
 
     @EmbeddedId
@@ -22,53 +32,6 @@ public class PromotionDetail implements Serializable {
     @JoinColumn(name = "product_id", nullable = false, insertable = false, updatable = false)
     private Product product;
 
-    @Column(name = "rate")
+    @Column(name = "rate", nullable = false, length = 3)
     private int rate;
-
-    public PromotionDetail() {
-        super();
-    }
-
-    public PromotionDetail(PromotionDetailId promotionDetailId) {
-        this.promotionDetailId = promotionDetailId;
-    }
-
-    public PromotionDetail(PromotionDetailId promotionDetailId, Promotion promotion, Product product, int rate) {
-        this.promotionDetailId = promotionDetailId;
-        this.promotion = promotion;
-        this.product = product;
-        this.rate = rate;
-    }
-
-    public PromotionDetailId getPromotionDetailId() {
-        return promotionDetailId;
-    }
-
-    public void setPromotionDetailId(PromotionDetailId promotionDetailId) {
-        this.promotionDetailId = promotionDetailId;
-    }
-
-    public Promotion getPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(Promotion promotion) {
-        this.promotion = promotion;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public int getRate() {
-        return rate;
-    }
-
-    public void setRate(int rate) {
-        this.rate = rate;
-    }
 }

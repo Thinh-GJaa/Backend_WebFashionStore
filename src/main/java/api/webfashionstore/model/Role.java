@@ -1,59 +1,36 @@
 package api.webfashionstore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "role")
-public class Role implements java.io.Serializable {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicUpdate
+@DynamicInsert
+public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
     private int roleId;
 
-    @Column(name = "role_name", nullable = false, unique = true)
+    @Column(name = "role_name", nullable = false, unique = true, length = 20)
     private String roleName;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @JsonIgnore
     private Set<Account> accounts = new HashSet<>();
 
-    // Constructors
-    public Role() {
-    }
-
-    public Role(int roleId) {
-        this.roleId = roleId;
-    }
-
-    public Role(String roleName, Set<Account> accounts) {
-        this.roleName = roleName;
-        this.accounts = accounts;
-    }
-
-    // Getters and Setters
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public Set<Account> getAccounts() {
-        return accounts;
-    }
-
-    public void setAccounts(Set<Account> accounts) {
-        this.accounts = accounts;
-    }
 }

@@ -1,12 +1,23 @@
 package api.webfashionstore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "material")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicUpdate
+@DynamicInsert
 public class Material implements Serializable {
 
     @Id
@@ -14,50 +25,11 @@ public class Material implements Serializable {
     @Column(name = "material_id")
     private int materialId;
 
-    @Column(name = "material_name", nullable = false, unique = true)
+    @Column(name = "material_name", nullable = false, unique = true, length = 50)
     private String materialName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "material", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @Builder.Default
     private Set<Product> products = new HashSet<>();
-
-    // Constructors
-    public Material() {
-    }
-
-    public Material(int materialId) {
-        this.materialId = materialId;
-    }
-
-    public Material(String materialName, Set<Product> products) {
-		this.materialName = materialName;
-		this.products = products;
-	}
-
-	// Getters and Setters
-    public int getMaterialId() {
-        return materialId;
-    }
-
-    public void setMaterialId(int materialId) {
-        this.materialId = materialId;
-    }
-
-    public String getMaterialName() {
-        return materialName;
-    }
-
-    public void setMaterialName(String materialName) {
-        this.materialName = materialName;
-    }
-
-    public Set<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
-    }
-
-
 }
-

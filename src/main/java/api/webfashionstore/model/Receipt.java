@@ -1,90 +1,49 @@
 package api.webfashionstore.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.io.Serializable;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "receipt")
-public class Receipt implements Serializable {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicUpdate
+@DynamicInsert
+public class Receipt {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "receipt_id")
-    private int receiptId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "receipt_id")
+	private int receiptId;
 
-    @ManyToOne
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+	@Column(name = "create_date", nullable = false)
+	private LocalDateTime createDate;
 
-    @Column(name = "create_date")
-    private LocalDateTime createDate;
+	@ManyToOne
+	@JoinColumn(name = "supplier_id", nullable = false)
+	private Supplier supplier;
 
-    @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
+	@ManyToOne
+	@JoinColumn(name = "staff_id", nullable = false)
+	private Staff staff;
 
-    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ReceiptDetail> receiptDetails = new HashSet<>();
+	@OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+	@Builder.Default
+	@JsonIgnore
+	private Set<ReceiptDetail> receiptDetails = new HashSet<>();
 
-	public Receipt() {
-		super();
+	@PrePersist
+	protected void onCreate() {
+		this.createDate = LocalDateTime.now();
 	}
-
-	public Receipt(int receiptId) {
-		this.receiptId = receiptId;
-	}
-
-	public Receipt(Supplier supplier, LocalDateTime createDate, Staff staff, Set<ReceiptDetail> receiptDetails) {
-		super();
-		this.supplier = supplier;
-		this.createDate = createDate;
-		this.staff = staff;
-		this.receiptDetails = receiptDetails;
-	}
-
-	public int getReceiptId() {
-		return receiptId;
-	}
-
-	public void setReceiptId(int receiptId) {
-		this.receiptId = receiptId;
-	}
-
-	public Supplier getSupplier() {
-		return supplier;
-	}
-
-	public void setSupplier(Supplier supplier) {
-		this.supplier = supplier;
-	}
-
-	public LocalDateTime getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(LocalDateTime createDate) {
-		this.createDate = createDate;
-	}
-
-	public Staff getStaff() {
-		return staff;
-	}
-
-	public void setStaff(Staff staff) {
-		this.staff = staff;
-	}
-
-	public Set<ReceiptDetail> getReceiptDetails() {
-		return receiptDetails;
-	}
-
-	public void setReceiptDetails(Set<ReceiptDetail> receiptDetails) {
-		this.receiptDetails = receiptDetails;
-	}
-
-
 
 }

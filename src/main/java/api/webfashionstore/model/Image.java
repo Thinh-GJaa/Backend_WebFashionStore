@@ -1,11 +1,21 @@
 package api.webfashionstore.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.io.Serializable;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Table(name = "image")
-public class Image implements Serializable {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicInsert
+@DynamicUpdate
+public class Image {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,72 +35,7 @@ public class Image implements Serializable {
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id",nullable = true)
+    @JoinColumn(name = "product_id")
+    @JsonIgnore
     private Product product;
-
-    // Constructors
-    public Image() {
-    }
-
-    public Image(int imageId) {
-        this.imageId = imageId;
-    }
-
-    public Image(String linkImage, Customer customer, Staff staff, Category category, Product product) {
-        this.linkImage = linkImage;
-        this.customer = customer;
-        this.staff = staff;
-        this.category = category;
-        this.product = product;
-    }
-
-    public int getImageId() {
-        return imageId;
-    }
-
-    public void setImageId(int imageId) {
-        this.imageId = imageId;
-    }
-
-    public String getLinkImage() {
-        return linkImage;
-    }
-
-    public void setLinkImage(String linkImage) {
-        this.linkImage = linkImage;
-    }
-
-    public Staff getStaff() {
-        return staff;
-    }
-
-    public void setStaff(Staff staff) {
-        this.staff = staff;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-
 }

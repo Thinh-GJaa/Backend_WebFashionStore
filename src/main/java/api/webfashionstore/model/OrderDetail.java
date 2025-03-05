@@ -1,10 +1,20 @@
 package api.webfashionstore.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.io.Serializable;
 
 @Entity
 @Table(name = "order_detail")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@DynamicUpdate
+@DynamicInsert
 public class OrderDetail implements Serializable {
 
     @EmbeddedId
@@ -15,87 +25,24 @@ public class OrderDetail implements Serializable {
     })
     private OrderDetailId orderDetailId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
             @JoinColumn(name = "product_id", referencedColumnName = "product_id", insertable = false, updatable = false),
             @JoinColumn(name = "size_id", referencedColumnName = "size_id", insertable = false, updatable = false)
     })
     private SizeDetail sizeDetail;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "quantity", nullable = false, length = 4)
+    private int quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, insertable = false, updatable = false)
     private Order order;
 
-    @Column(name = "quantity")
-    private int quantity;
-
-    @Column(name = "rating_score", columnDefinition = "INT DEFAULT 0")
+    @Column(name = "rating_score", nullable = false, columnDefinition = "INT DEFAULT 0", length = 1)
     private int ratingScore;
 
-    @Column(name = "price", columnDefinition = "DOUBLE DEFAULT 0")
-    private double price;
+    @Column(name = "price", nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
+    private float price;
 
-
-    public OrderDetail() {
-    }
-
-    public OrderDetail(OrderDetailId orderDetailId) {
-        this.orderDetailId = orderDetailId;
-    }
-
-    public OrderDetail(OrderDetailId orderDetailId, Order order, SizeDetail sizeDetail, int quantity, int ratingScore) {
-        this.orderDetailId = orderDetailId;
-        this.order = order;
-        this.sizeDetail = sizeDetail;
-        this.quantity = quantity;
-        this.ratingScore = ratingScore;
-    }
-
-    public OrderDetailId getOrderDetailId() {
-        return orderDetailId;
-    }
-
-    public void setOrderDetailId(OrderDetailId orderDetailId) {
-        this.orderDetailId = orderDetailId;
-    }
-
-    public SizeDetail getSizeDetail() {
-        return sizeDetail;
-    }
-
-    public void setSizeDetail(SizeDetail sizeDetail) {
-        this.sizeDetail = sizeDetail;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public int getRatingScore() {
-        return ratingScore;
-    }
-
-    public void setRatingScore(int ratingScore) {
-        this.ratingScore = ratingScore;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
 }
