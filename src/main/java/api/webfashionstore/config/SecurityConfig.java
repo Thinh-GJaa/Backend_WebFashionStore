@@ -1,55 +1,45 @@
 package api.webfashionstore.config;
 
-import com.example.webthoitrang.login_google.CustomOAuth2UserService;
-import com.example.webthoitrang.login_google.OAuth2AuthenticationFailureHandler;
-import com.example.webthoitrang.login_google.OAuth2AuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final JwtFilter jwtFilter;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
-        this.customOAuth2UserService = customOAuth2UserService;
-    }
-
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                .antMatchers("/**", "/home", "/public/**", "/login", "/oauth2/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .oauth2Login()
-                .loginPage("/login")
-                .userInfoEndpoint()
-                .userService(customOAuth2UserService)
-                .and()
-                .successHandler(oAuth2AuthenticationSuccessHandler())
-                .failureHandler(oAuth2AuthenticationFailureHandler())
-                .and()
-                .logout()
-                .logoutSuccessUrl("/").permitAll()
-                .and()
-                .csrf().disable(); // Tắt CSRF để dễ dàng trong quá trình phát triển
-    }
-
-
-    @Bean
-    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        return new OAuth2AuthenticationSuccessHandler();
+    public SecurityConfig(JwtFilter jwtFilter, CustomAccessDeniedHandler accessDeniedHandler,
+                          CustomAuthenticationEntryPoint authenticationEntryPoint) {
+        this.jwtFilter = jwtFilter;
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
-    public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
-        return new OAuth2AuthenticationFailureHandler();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configure(http)) // 🔹 Cho phép CORS nếu cần
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login").permitAll() // 🔹 Cho phép truy cập API login
+                        .requestMatchers("/test-api/**").permitAll() // 🔹 Cho phép truy cập test API
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN") // 🔹 Dùng hasAuthority thay vì hasRole
+                        .requestMatchers("/api/staff/**").hasAuthority("ROLE_STAFF")
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(config -> config
+                        .accessDeniedHandler(accessDeniedHandler) // Xử lý lỗi 403
+                        .authenticationEntryPoint(authenticationEntryPoint) // Xử lý lỗi 401
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }
-
